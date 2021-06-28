@@ -1,0 +1,30 @@
+version: "3.7"
+
+services:
+  app:
+    build: ./phoenix
+    container_name: phoenix_hello
+    shm_size: 512m
+    command: tail -f /dev/null
+    env_file:
+      - ./.env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "100"
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./:/srv/
+
+  db:
+    image: postgres
+    container_name: phoenix_hello_db
+    shm_size: 512m
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=db
+    volumes:
+      - ../postgresql/phoenix_hello:/var/lib/postgresql/data
