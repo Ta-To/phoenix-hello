@@ -1,16 +1,27 @@
 defmodule Hello.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
       app: :hello,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      releases: [
+        service: fn ->
+          [
+            version: @version <> "+" <> git_ref(),
+            steps: [:assemble, :tar],
+            path: "./service"
+          ]
+        end
+      ]
     ]
   end
 
@@ -61,5 +72,10 @@ defmodule Hello.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
+  end
+
+  defp git_ref do
+    {id, 0} = System.cmd("git", ["rev-parse", "--short", "HEAD"])
+    String.trim(id)
   end
 end
